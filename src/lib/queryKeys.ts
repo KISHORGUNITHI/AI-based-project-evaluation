@@ -1,0 +1,50 @@
+export const queryKeys = {
+  auth: {
+    session: ['auth', 'session'] as const,
+  },
+  student: {
+    profile: ['student', 'profile'] as const,
+    dashboard: ['student', 'dashboard'] as const,
+    teams: ['student', 'teams'] as const,
+    projects: ['student', 'projects'] as const,
+    project: (id: string) => ['student', 'projects', id] as const,
+    submissions: ['student', 'submissions'] as const,
+    evaluations: ['student', 'evaluations'] as const,
+  },
+  judge: {
+    profile: ['judge', 'profile'] as const,
+    dashboard: ['judge', 'dashboard'] as const,
+    projects: ['judge', 'projects'] as const,
+    assignedProjects: ['judge', 'assigned-projects'] as const,
+    project: (id: string) => ['judge', 'projects', id] as const,
+    submissions: (id: string) => ['judge', 'projects', id, 'submissions'] as const,
+    latestSubmission: (id: string) => ['judge', 'projects', id, 'latest-submission'] as const,
+    evaluations: ['judge', 'evaluations'] as const,
+  },
+  teams: {
+    all: ['teams', 'all'] as const,
+    my: ['teams', 'my'] as const,
+    detail: (id: string) => ['teams', id] as const,
+    search: (name: string) => ['teams', 'search', name] as const,
+  },
+  projects: {
+    all: ['projects', 'all'] as const,
+    detail: (id: string) => ['projects', id] as const,
+  },
+  evaluations: {
+    all: ['evaluations', 'all'] as const,
+    detail: (id: string) => ['evaluations', id] as const,
+  },
+  admin: {
+    users: ['admin', 'users'] as const,
+    user: (id: string) => ['admin', 'users', id] as const,
+    dashboard: ['admin', 'dashboard'] as const,
+    projects: ['admin', 'projects'] as const,
+    projectDetail: (id: string) => ['admin', 'projects', id] as const,
+    evaluations: ['admin', 'evaluations'] as const,
+    judges: ['admin', 'judges'] as const,
+    leaderboard: ['admin', 'leaderboard'] as const,
+    activity: ['admin', 'activity'] as const,
+    settings: ['admin', 'settings'] as const,
+  },
+} as const

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "ai-project-evaluation",
+			"path": "."
+		},
+		{
+			"name": "ai-project-evaluation-backend",
+			"path": "../ai-project-evaluation-backend"
+		}
+	],
+	"settings": {}
+}
