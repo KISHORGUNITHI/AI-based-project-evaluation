@@ -72,22 +72,10 @@ export const studentService = {
       }),
 
   search: async (rollNumber: string) => {
-    const mockStudents = [
-      { id: 'mohan', rollNumber: 'AP24110011724', name: 'test' },
-      { id: 'kishore', rollNumber: 'AP24110011742', name: 'mohan' },
-      { id: 'cmqui1k660000w7itufd90ys4', rollNumber: 'CS001', name: 'Test User' },
-      { id: 'cmqui6fxn0001w7it7h9u0pjo', rollNumber: 'AP24110011966', name: 'jash' },
-      { id: 'cmqyy9mum0001e5itqln1c4d4', rollNumber: 'AP24110011955', name: 'jaswanth' },
-      { id: 'cmr0sc7ie0002azit5242j79b', rollNumber: 'TESTSTUDENT123', name: 'Test Student' }
-    ]
-    const match = mockStudents.find(
-      (s) => s.rollNumber.toLowerCase() === rollNumber.trim().toLowerCase()
-    )
-    if (match) {
-      return match
-    }
     try {
-      const res = await api.get<{ student: any }>(`/api/student/search?q=${encodeURIComponent(rollNumber)}`)
+      const res = await api.get<{ student: any }>(
+        `/api/student/search?q=${encodeURIComponent(rollNumber.trim())}`,
+      )
       return res.data.student
     } catch {
       return null

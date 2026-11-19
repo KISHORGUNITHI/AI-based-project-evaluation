@@ -83,10 +83,34 @@ export const evaluationService = {
 
           const decoder = new TextDecoder()
           let buffer = ''
+          let isSettled = false
+
+          const safeResolve = (evalData: Evaluation) => {
+            if (!isSettled) {
+              isSettled = true
+              resolve(evalData)
+            }
+          }
+
+          const safeReject = (err: Error) => {
+            if (!isSettled) {
+              isSettled = true
+              reject(err)
+            }
+          }
 
           while (true) {
             const { done, value } = await reader.read()
-            if (done) break
+            if (done) {
+              // Server closed stream: ensure promise resolves with latest evaluation from API
+              if (!isSettled) {
+                api
+                  .get<Evaluation>(`/api/evaluation/${id}`)
+                  .then((r) => safeResolve(r.data))
+                  .catch((err) => safeReject(err))
+              }
+              break
+            }
 
             buffer += decoder.decode(value, { stream: true })
             const lines = buffer.split('\n')
@@ -101,11 +125,20 @@ export const evaluationService = {
                 const event = JSON.parse(raw)
                 onProgress?.(event)
 
-                if (event.step === 'done' && event.evaluation) {
-                  resolve(event.evaluation as Evaluation)
+                if (event.step === 'done') {
+                  if (event.evaluation) {
+                    safeResolve(event.evaluation as Evaluation)
+                  } else {
+                    api
+                      .get<Evaluation>(`/api/evaluation/${id}`)
+                      .then((r) => safeResolve(r.data))
+                      .catch((err) => safeReject(err))
+                  }
+                  return
                 }
                 if (event.step === 'error') {
-                  reject(new Error(event.message ?? 'AI evaluation failed'))
+                  safeReject(new Error(event.message ?? 'AI evaluation failed'))
+                  return
                 }
               } catch {
                 // ignore malformed SSE lines

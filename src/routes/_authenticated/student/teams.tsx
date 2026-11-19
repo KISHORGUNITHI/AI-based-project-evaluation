@@ -67,13 +67,13 @@ function TeamsPage() {
   const createMutation = useMutation({
     mutationFn: teamService.create,
     onSuccess: () => { invalidate(); setCreateOpen(false); toast.success('Team created!') },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.response?.data?.message || e.message || 'Failed to create team'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => teamService.delete(id),
     onSuccess: () => { invalidate(); setDeleteId(null); toast.success('Team deleted') },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.response?.data?.message || e.message || 'Failed to delete team'),
   })
 
   const addMemberMutation = useMutation({
@@ -84,14 +84,14 @@ function TeamsPage() {
       setAddMemberIds(prev => ({ ...prev, [variables.teamId]: '' })); 
       toast.success('Member added!') 
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.response?.data?.message || e.message || 'Failed to add member'),
   })
 
   const removeMemberMutation = useMutation({
     mutationFn: ({ teamId, studentId }: { teamId: string; studentId: string }) =>
       teamService.removeMember(teamId, studentId),
     onSuccess: () => { invalidate(); toast.success('Member removed') },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.response?.data?.message || e.message || 'Failed to remove member'),
   })
 
 
@@ -302,7 +302,7 @@ function TeamsPage() {
                       })}
                       <div className="flex gap-2 pt-1.5">
                         <input value={addMemberIds[team.id] || ''} onChange={e => setAddMemberIds(prev => ({ ...prev, [team.id]: e.target.value }))}
-                          placeholder="Add by Roll Number"
+                          placeholder="Add by Roll Number or Email"
                           className="flex-1 px-3 py-1.5 text-xs border rounded-lg bg-background text-foreground outline-none focus:ring-1 focus:ring-pink-500" />
                         <button onClick={async () => {
                           const rollNumber = addMemberIds[team.id]?.trim()
@@ -311,12 +311,12 @@ function TeamsPage() {
                           try {
                             const student = await studentService.search(rollNumber)
                             if (!student?.id) {
-                              toast.error(`No student found with roll number: ${rollNumber}`)
+                              toast.error(`No student found matching: ${rollNumber}`)
                               return
                             }
                             addMemberMutation.mutate({ teamId: team.id, studentId: student.id })
-                          } catch {
-                            toast.error('Failed to find student')
+                          } catch (err: any) {
+                            toast.error(err.response?.data?.message || 'Failed to find student')
                           } finally {
                             setAddMemberSearching(prev => ({ ...prev, [team.id]: false }))
                           }
